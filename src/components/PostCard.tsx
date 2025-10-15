@@ -1,30 +1,21 @@
 import { Heart, MessageCircle, Share2, Bookmark } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useApp } from '../context/AppContext';
+import { useNavigation } from '../context/NavigationContext';
+import { Post } from '../types';
 
-interface PostCardProps {
-  id: string;
-  author: {
-    name: string;
-    username: string;
-    avatar: string;
-  };
-  content: string;
-  image?: string;
-  likes: number;
-  comments: number;
-  timestamp: string;
-  likedByUser: boolean;
-  savedByUser: boolean;
+interface PostCardProps extends Post {
+  post?: Post;
 }
 
-const PostCard = ({ id, author, content, image, likes, comments, timestamp, likedByUser, savedByUser }: PostCardProps) => {
+const PostCard = (props: PostCardProps) => {
+  const { id, author, content, image, likes, comments, timestamp, likedByUser, savedByUser } = props.post || props;
   const { isDark } = useTheme();
   const { toggleLike, toggleSave } = useApp();
+  const { navigateTo } = useNavigation();
 
   const handleComment = () => {
-    const message = `Join the conversation on ${author.name}'s post! Comment feature coming soon.`;
-    alert(message);
+    navigateTo('post', id);
   };
 
   const handleShare = () => {
@@ -43,7 +34,7 @@ const PostCard = ({ id, author, content, image, likes, comments, timestamp, like
 
   return (
     <div className="relative group">
-      <div className="absolute -inset-1 rounded-2xl bg-gradient-to-b from-blue-600 via-purple-600 to-indigo-600 opacity-0 group-hover:opacity-50 blur-xl transition-all duration-500" />
+      <div className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-blue-600 via-cyan-600 to-teal-600 opacity-0 group-hover:opacity-50 blur-xl transition-all duration-500" />
 
       <div className={`relative rounded-2xl border transition-all duration-300 ${
         isDark
@@ -87,7 +78,9 @@ const PostCard = ({ id, author, content, image, likes, comments, timestamp, like
                 </button>
               </div>
 
-              <p className={`mt-3 text-base leading-relaxed transition-colors ${
+              <p
+                onClick={() => navigateTo('post', id)}
+                className={`mt-3 text-base leading-relaxed transition-colors cursor-pointer hover:opacity-80 ${
                 isDark ? 'text-gray-300' : 'text-gray-800'
               }`}>
                 {content}
