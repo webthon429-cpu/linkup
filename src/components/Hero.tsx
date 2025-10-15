@@ -32,7 +32,12 @@ const Hero = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-            <button className="group relative px-8 py-4 rounded-full overflow-hidden transition-all duration-300 hover:scale-105">
+            <button
+              onClick={() => {
+                document.getElementById('create-post')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="group relative px-8 py-4 rounded-full overflow-hidden transition-all duration-300 hover:scale-105"
+            >
               <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 transition-transform duration-300 group-hover:scale-110" />
               <span className="relative flex items-center space-x-2 text-white font-semibold">
                 <span>Get Started</span>
@@ -40,11 +45,16 @@ const Hero = () => {
               </span>
             </button>
 
-            <button className={`px-8 py-4 rounded-full border-2 font-semibold transition-all duration-300 hover:scale-105 ${
-              isDark
-                ? 'border-zinc-700 text-gray-300 hover:bg-zinc-900'
-                : 'border-gray-300 text-gray-700 hover:bg-gray-100'
-            }`}>
+            <button
+              onClick={() => {
+                document.getElementById('explore')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className={`px-8 py-4 rounded-full border-2 font-semibold transition-all duration-300 hover:scale-105 ${
+                isDark
+                  ? 'border-zinc-700 text-gray-300 hover:bg-zinc-900'
+                  : 'border-gray-300 text-gray-700 hover:bg-gray-100'
+              }`}
+            >
               Learn More
             </button>
           </div>

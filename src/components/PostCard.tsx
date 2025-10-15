@@ -1,8 +1,9 @@
 import { Heart, MessageCircle, Share2, Bookmark } from 'lucide-react';
-import { useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
+import { useApp } from '../context/AppContext';
 
 interface PostCardProps {
+  id: string;
   author: {
     name: string;
     username: string;
@@ -13,17 +14,31 @@ interface PostCardProps {
   likes: number;
   comments: number;
   timestamp: string;
+  likedByUser: boolean;
+  savedByUser: boolean;
 }
 
-const PostCard = ({ author, content, image, likes, comments, timestamp }: PostCardProps) => {
+const PostCard = ({ id, author, content, image, likes, comments, timestamp, likedByUser, savedByUser }: PostCardProps) => {
   const { isDark } = useTheme();
-  const [isLiked, setIsLiked] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
-  const [likeCount, setLikeCount] = useState(likes);
+  const { toggleLike, toggleSave } = useApp();
 
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-    setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+  const handleComment = () => {
+    const message = `Join the conversation on ${author.name}'s post! Comment feature coming soon.`;
+    alert(message);
+  };
+
+  const handleShare = () => {
+    const shareText = `Check out this post from ${author.name}: "${content.substring(0, 100)}${content.length > 100 ? '...' : ''}"`;
+    if (navigator.share) {
+      navigator.share({
+        title: `Post from ${author.name}`,
+        text: shareText,
+        url: window.location.href
+      }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(`${shareText}\n${window.location.href}`);
+      alert('Post link copied to clipboard!');
+    }
   };
 
   return (
@@ -61,14 +76,14 @@ const PostCard = ({ author, content, image, likes, comments, timestamp }: PostCa
                   </p>
                 </div>
                 <button
-                  onClick={() => setIsSaved(!isSaved)}
+                  onClick={() => toggleSave(id)}
                   className={`transition-colors duration-200 ${
-                    isSaved
+                    savedByUser
                       ? 'text-purple-500'
                       : isDark ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
-                  <Bookmark size={20} fill={isSaved ? 'currentColor' : 'none'} />
+                  <Bookmark size={20} fill={savedByUser ? 'currentColor' : 'none'} />
                 </button>
               </div>
 
@@ -92,27 +107,33 @@ const PostCard = ({ author, content, image, likes, comments, timestamp }: PostCa
                 isDark ? 'border-zinc-800' : 'border-gray-200'
               }`}>
                 <button
-                  onClick={handleLike}
+                  onClick={() => toggleLike(id)}
                   className={`flex items-center space-x-2 transition-all duration-200 hover:scale-110 ${
-                    isLiked
+                    likedByUser
                       ? 'text-red-500'
                       : isDark ? 'text-gray-400 hover:text-red-500' : 'text-gray-600 hover:text-red-500'
                   }`}
                 >
-                  <Heart size={20} fill={isLiked ? 'currentColor' : 'none'} />
-                  <span className="text-sm font-medium">{likeCount}</span>
+                  <Heart size={20} fill={likedByUser ? 'currentColor' : 'none'} />
+                  <span className="text-sm font-medium">{likes}</span>
                 </button>
 
-                <button className={`flex items-center space-x-2 transition-all duration-200 hover:scale-110 ${
-                  isDark ? 'text-gray-400 hover:text-blue-500' : 'text-gray-600 hover:text-blue-500'
-                }`}>
+                <button
+                  onClick={handleComment}
+                  className={`flex items-center space-x-2 transition-all duration-200 hover:scale-110 ${
+                    isDark ? 'text-gray-400 hover:text-blue-500' : 'text-gray-600 hover:text-blue-500'
+                  }`}
+                >
                   <MessageCircle size={20} />
                   <span className="text-sm font-medium">{comments}</span>
                 </button>
 
-                <button className={`flex items-center space-x-2 transition-all duration-200 hover:scale-110 ${
-                  isDark ? 'text-gray-400 hover:text-green-500' : 'text-gray-600 hover:text-green-500'
-                }`}>
+                <button
+                  onClick={handleShare}
+                  className={`flex items-center space-x-2 transition-all duration-200 hover:scale-110 ${
+                    isDark ? 'text-gray-400 hover:text-green-500' : 'text-gray-600 hover:text-green-500'
+                  }`}
+                >
                   <Share2 size={20} />
                 </button>
               </div>

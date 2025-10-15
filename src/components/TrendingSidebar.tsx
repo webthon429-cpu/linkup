@@ -1,16 +1,14 @@
 import { TrendingUp, Hash } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { useApp } from '../context/AppContext';
 
 const TrendingSidebar = () => {
   const { isDark } = useTheme();
+  const { trendingTags, suggestedUsers, toggleFollow } = useApp();
 
-  const trending = [
-    { tag: 'connect', posts: '12.5K' },
-    { tag: 'inspire', posts: '8.9K' },
-    { tag: 'social', posts: '7.2K' },
-    { tag: 'webdev', posts: '6.8K' },
-    { tag: 'innovation', posts: '5.4K' }
-  ];
+  const handleTrendingClick = (tag: string) => {
+    alert(`Explore #${tag} posts! This feature will show all posts with this trending tag.`);
+  };
 
   return (
     <aside className="hidden lg:block">
@@ -33,9 +31,10 @@ const TrendingSidebar = () => {
             </div>
 
             <div className="space-y-4">
-              {trending.map((item, index) => (
+              {trendingTags.map((item, index) => (
                 <button
                   key={index}
+                  onClick={() => handleTrendingClick(item.tag)}
                   className={`w-full text-left p-3 rounded-lg transition-all duration-300 hover:scale-105 ${
                     isDark
                       ? 'hover:bg-zinc-800'
@@ -78,24 +77,8 @@ const TrendingSidebar = () => {
             </h3>
 
             <div className="space-y-4">
-              {[
-                {
-                  name: 'Jessica Lee',
-                  username: 'jessicalee',
-                  avatar: 'https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&dpr=1'
-                },
-                {
-                  name: 'Ryan Cooper',
-                  username: 'ryancooper',
-                  avatar: 'https://images.pexels.com/photos/1516680/pexels-photo-1516680.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&dpr=1'
-                },
-                {
-                  name: 'Maya Patel',
-                  username: 'mayapatel',
-                  avatar: 'https://images.pexels.com/photos/1181690/pexels-photo-1181690.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&dpr=1'
-                }
-              ].map((user, index) => (
-                <div key={index} className="flex items-center justify-between">
+              {suggestedUsers.map((user) => (
+                <div key={user.id} className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="relative flex-shrink-0">
                       <div className="absolute -inset-0.5 rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-blue-500 opacity-75" />
@@ -118,12 +101,17 @@ const TrendingSidebar = () => {
                       </div>
                     </div>
                   </div>
-                  <button className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 hover:scale-105 ${
-                    isDark
-                      ? 'bg-zinc-800 text-white hover:bg-zinc-700'
-                      : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
-                  }`}>
-                    Follow
+                  <button
+                    onClick={() => toggleFollow(user.id)}
+                    className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 hover:scale-105 ${
+                      user.isFollowing
+                        ? isDark
+                          ? 'bg-zinc-800 text-gray-400 hover:bg-zinc-700'
+                          : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
+                        : 'bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 text-white'
+                    }`}
+                  >
+                    {user.isFollowing ? 'Following' : 'Follow'}
                   </button>
                 </div>
               ))}

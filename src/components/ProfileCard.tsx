@@ -1,8 +1,33 @@
-import { MapPin, Calendar, Link as LinkIcon, Edit } from 'lucide-react';
+import { MapPin, Calendar, Link as LinkIcon, Edit, X, Save } from 'lucide-react';
+import { useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
+import { useApp } from '../context/AppContext';
 
 const ProfileCard = () => {
   const { isDark } = useTheme();
+  const { currentUser, updateProfile } = useApp();
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    name: currentUser.name,
+    bio: currentUser.bio,
+    location: currentUser.location,
+    website: currentUser.website
+  });
+
+  const handleSave = () => {
+    updateProfile(formData);
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setFormData({
+      name: currentUser.name,
+      bio: currentUser.bio,
+      location: currentUser.location,
+      website: currentUser.website
+    });
+    setIsEditing(false);
+  };
 
   return (
     <section id="profile" className="py-12">
@@ -22,58 +47,143 @@ const ProfileCard = () => {
                 <div className="relative">
                   <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-500 opacity-75 blur" />
                   <img
-                    src="https://images.pexels.com/photos/1516680/pexels-photo-1516680.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&dpr=1"
+                    src={currentUser.avatar}
                     alt="Profile"
                     className="relative w-32 h-32 rounded-full object-cover border-4 border-black"
                   />
                 </div>
 
-                <button className={`mb-4 px-6 py-2 rounded-full border-2 font-semibold transition-all duration-300 hover:scale-105 flex items-center space-x-2 ${
-                  isDark
-                    ? 'border-zinc-700 text-gray-300 hover:bg-zinc-800'
-                    : 'border-gray-300 text-gray-700 hover:bg-gray-100'
-                }`}>
-                  <Edit size={16} />
-                  <span>Edit Profile</span>
-                </button>
+                {!isEditing ? (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className={`mb-4 px-6 py-2 rounded-full border-2 font-semibold transition-all duration-300 hover:scale-105 flex items-center space-x-2 ${
+                      isDark
+                        ? 'border-zinc-700 text-gray-300 hover:bg-zinc-800'
+                        : 'border-gray-300 text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <Edit size={16} />
+                    <span>Edit Profile</span>
+                  </button>
+                ) : (
+                  <div className="mb-4 flex items-center space-x-2">
+                    <button
+                      onClick={handleSave}
+                      className="group relative px-5 py-2 rounded-full overflow-hidden transition-all duration-300 hover:scale-105"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 transition-transform duration-300 group-hover:scale-110" />
+                      <span className="relative flex items-center space-x-2 text-white font-semibold text-sm">
+                        <Save size={16} />
+                        <span>Save</span>
+                      </span>
+                    </button>
+                    <button
+                      onClick={handleCancel}
+                      className={`px-5 py-2 rounded-full border-2 font-semibold transition-all duration-300 hover:scale-105 flex items-center space-x-2 ${
+                        isDark
+                          ? 'border-zinc-700 text-gray-300 hover:bg-zinc-800'
+                          : 'border-gray-300 text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      <X size={16} />
+                      <span>Cancel</span>
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <h2 className={`text-2xl font-bold transition-colors ${
-                    isDark ? 'text-white' : 'text-gray-900'
-                  }`}>
-                    Alex Thompson
-                  </h2>
-                  <p className={`text-base transition-colors ${
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className={`text-2xl font-bold w-full px-3 py-2 rounded-lg border outline-none transition-colors ${
+                        isDark
+                          ? 'bg-zinc-800 border-zinc-700 text-white'
+                          : 'bg-gray-50 border-gray-300 text-gray-900'
+                      }`}
+                      placeholder="Your name"
+                    />
+                  ) : (
+                    <h2 className={`text-2xl font-bold transition-colors ${
+                      isDark ? 'text-white' : 'text-gray-900'
+                    }`}>
+                      {currentUser.name}
+                    </h2>
+                  )}
+                  <p className={`text-base mt-1 transition-colors ${
                     isDark ? 'text-gray-400' : 'text-gray-600'
                   }`}>
-                    @alexthompson
+                    @{currentUser.username}
                   </p>
                 </div>
 
-                <p className={`text-base leading-relaxed transition-colors ${
-                  isDark ? 'text-gray-300' : 'text-gray-800'
-                }`}>
-                  Full-stack developer passionate about creating beautiful and functional web experiences. Building the future, one line of code at a time.
-                </p>
+                {isEditing ? (
+                  <textarea
+                    value={formData.bio}
+                    onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                    rows={3}
+                    className={`w-full px-3 py-2 rounded-lg border outline-none transition-colors resize-none ${
+                      isDark
+                        ? 'bg-zinc-800 border-zinc-700 text-gray-300'
+                        : 'bg-gray-50 border-gray-300 text-gray-800'
+                    }`}
+                    placeholder="Your bio"
+                  />
+                ) : (
+                  <p className={`text-base leading-relaxed transition-colors ${
+                    isDark ? 'text-gray-300' : 'text-gray-800'
+                  }`}>
+                    {currentUser.bio}
+                  </p>
+                )}
 
                 <div className={`flex flex-wrap gap-4 text-sm transition-colors ${
                   isDark ? 'text-gray-400' : 'text-gray-600'
                 }`}>
                   <div className="flex items-center space-x-1">
                     <MapPin size={16} />
-                    <span>San Francisco, CA</span>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={formData.location}
+                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                        className={`px-2 py-1 rounded border outline-none transition-colors ${
+                          isDark
+                            ? 'bg-zinc-800 border-zinc-700 text-gray-300'
+                            : 'bg-gray-50 border-gray-300 text-gray-800'
+                        }`}
+                        placeholder="Location"
+                      />
+                    ) : (
+                      <span>{currentUser.location}</span>
+                    )}
                   </div>
                   <div className="flex items-center space-x-1">
                     <Calendar size={16} />
-                    <span>Joined March 2024</span>
+                    <span>Joined {currentUser.joinedDate}</span>
                   </div>
                   <div className="flex items-center space-x-1">
                     <LinkIcon size={16} />
-                    <a href="#" className="text-blue-500 hover:underline">
-                      alexthompson.dev
-                    </a>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={formData.website}
+                        onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                        className={`px-2 py-1 rounded border outline-none transition-colors ${
+                          isDark
+                            ? 'bg-zinc-800 border-zinc-700 text-gray-300'
+                            : 'bg-gray-50 border-gray-300 text-gray-800'
+                        }`}
+                        placeholder="Website"
+                      />
+                    ) : (
+                      <a href={`https://${currentUser.website}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                        {currentUser.website}
+                      </a>
+                    )}
                   </div>
                 </div>
 
@@ -84,7 +194,7 @@ const ProfileCard = () => {
                     <div className={`text-2xl font-bold transition-colors ${
                       isDark ? 'text-white' : 'text-gray-900'
                     }`}>
-                      248
+                      {currentUser.postsCount}
                     </div>
                     <div className={`text-sm transition-colors ${
                       isDark ? 'text-gray-400' : 'text-gray-600'
@@ -96,7 +206,7 @@ const ProfileCard = () => {
                     <div className={`text-2xl font-bold transition-colors ${
                       isDark ? 'text-white' : 'text-gray-900'
                     }`}>
-                      12.5K
+                      {currentUser.followersCount.toLocaleString()}
                     </div>
                     <div className={`text-sm transition-colors ${
                       isDark ? 'text-gray-400' : 'text-gray-600'
@@ -108,7 +218,7 @@ const ProfileCard = () => {
                     <div className={`text-2xl font-bold transition-colors ${
                       isDark ? 'text-white' : 'text-gray-900'
                     }`}>
-                      892
+                      {currentUser.followingCount}
                     </div>
                     <div className={`text-sm transition-colors ${
                       isDark ? 'text-gray-400' : 'text-gray-600'
